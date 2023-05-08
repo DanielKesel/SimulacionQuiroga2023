@@ -43,8 +43,8 @@ def llegadaTarea() :
     return tareaAceptada
     
 
-def FDPprioridad(BP, MP, AP) :
-    
+def FDPprioridad() :
+    global BP, MP, AP
     R = random.random()
     prioridad = ""
 
@@ -57,7 +57,9 @@ def FDPprioridad(BP, MP, AP) :
     else :
         AP += 1
         prioridad = "AP"
-    
+    print("La cantidad de tareas de Alta prioridad es: %s" %AP)
+    print("La cantidad de tareas de Media prioridad es: %s" %MP)
+    print("La cantidad de tareas de Baja prioridad es: %s" %BP)
     return prioridad
 
 def FDPresolucionTareas(prioridad) :
@@ -133,7 +135,7 @@ while TIEMPO < TIEMPO_FINAL :
             print("-> Entramos a la condicion 'tareaAceptada == True'")
             TPLL += TIEMPO + IA
             contador_tareas_atendidas += 1
-            prioridad_llegada = FDPprioridad(BP, MP, AP)
+            prioridad_llegada = FDPprioridad()
             if(BP + MP + AP) <= cantidad_de_testers_disponibles :
                 print("-> Entramos a la condicion 'if(BP + MP + AP) <= cantidad_de_testers_disponibles'")
                 if HV in TPS :     
@@ -142,22 +144,27 @@ while TIEMPO < TIEMPO_FINAL :
                     TPS[posicion_disponible] = TIEMPO + FDPresolucionTareas(prioridad_llegada)
                     vector_prioridades_por_puestos_por_puesto[posicion_disponible] = prioridad_llegada
                     SUMATORIA_TIEMPO_OSCIOSO[posicion_disponible] += TIEMPO - INICIO_TIEMPO_OSCIOSO[posicion_disponible]
-            
+            else :
+                print("RECHAZAR TAREA")
         print("TPLL es %s y TPS es %s" %(TPLL, TPS))
         print(vector_prioridades_por_puestos_por_puesto)
         print("Se vuelve a cumplir el ciclo hasta que deje de pasar TIEMPO < TIEMPO_FINAL")
-        IA = 0
+        
     else : 
+        print("Condicion SALIDA")
         TIEMPO = TPS[posicionMenorTPS]
-        SUMATORIA_TPS += TPS[posicionMenorTPS]
+        SUMATORIA_TPS[posicionMenorTPS] += TPS[posicionMenorTPS]
         prioridad_tarea = ""
         if vector_prioridades_por_puestos_por_puesto[posicionMenorTPS] == "BP" :
+            print("SALE UNA BP")
             BP -= 1
             prioridad_tarea = "BP"
         elif vector_prioridades_por_puestos_por_puesto[posicionMenorTPS] == "MP" :
+            print("SALE UNA MP")
             MP -= 1
             prioridad_tarea = "MP"
         elif vector_prioridades_por_puestos_por_puesto[posicionMenorTPS] == "AP" :
+            print("SALE UNA AP")
             AP -= 1
             prioridad_tarea = "AP"
         if(BP + MP + AP) >= cantidad_de_testers_disponibles :
@@ -166,6 +173,7 @@ while TIEMPO < TIEMPO_FINAL :
             TPS[posicionMenorTPS] = HV
             INICIO_TIEMPO_OSCIOSO[posicionMenorTPS] = TIEMPO
     IA = 0
+    
 
 print("En un lapso de %s días llegaron %s tareas, se rechazaron %s y se atendieron %s" % (TIEMPO_FINAL, contador_tareas, arrepentidos ,contador_tareas_atendidas))
 
