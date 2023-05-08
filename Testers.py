@@ -11,7 +11,7 @@ TOCIO = [] #Tiempo Ocioso
 TTESTING = [] #Tiempo de duracion del Testing que varia segun prioridad.
 TIEMPO = 0
 SUMATORIA_TLL = 0
-SUMATORIA_TLL = 0
+SUMATORIA_TPS = []
 IA = 0
 TIEMPO_FINAL = 0
 HV = math.inf
@@ -101,7 +101,9 @@ print("La cantidad de testers que has decidido contratar es %s" %cantidad_de_tes
 TPS = [HV] * cantidad_de_testers
 SUMATORIA_TIEMPO_OSCIOSO = [0] * cantidad_de_testers
 INICIO_TIEMPO_OSCIOSO = [0] * cantidad_de_testers
+SUMATORIA_TPS = [0] * cantidad_de_testers
 vector_puestos_de_atencion = [0] * cantidad_de_testers
+vector_prioridades_por_puestos_por_puesto = [0] * cantidad_de_testers
 cantidad_de_testers_disponibles = cantidad_de_testers
 contador_tareas = 0
 contador_dias_sin_tareas = 0
@@ -109,8 +111,8 @@ espera_tarea = bool
 
 while TIEMPO < TIEMPO_FINAL :
     print("-> Entramos a la condicion 'TIEMPO < TIEMPO_FINAL'")
-    
-    if TPLL <= TPS[buscarMenorTPS()]:
+    posicionMenorTPS = buscarMenorTPS()
+    if TPLL <= TPS[posicionMenorTPS]:
         print("-> Entramos a la condicion 'TPLL <= TPS[buscarMenorTPS()]'")
         TIEMPO = TPLL
         SUMATORIA_TLL += TPLL
@@ -138,15 +140,32 @@ while TIEMPO < TIEMPO_FINAL :
                     print("-> 'HV in TPS'")
                     posicion_disponible = buscarHV()
                     TPS[posicion_disponible] = TIEMPO + FDPresolucionTareas(prioridad_llegada)
+                    vector_prioridades_por_puestos_por_puesto[posicion_disponible] = prioridad_llegada
                     SUMATORIA_TIEMPO_OSCIOSO[posicion_disponible] += TIEMPO - INICIO_TIEMPO_OSCIOSO[posicion_disponible]
             
         print("TPLL es %s y TPS es %s" %(TPLL, TPS))
+        print(vector_prioridades_por_puestos_por_puesto)
         print("Se vuelve a cumplir el ciclo hasta que deje de pasar TIEMPO < TIEMPO_FINAL")
-
-    #Tiempo Proxima Salidaelse : 
-    #Tiempo Proxima Salida    TIEMPO = TPS[buscarMenorTPS()]
-
-    TIEMPO +=1
+        IA = 0
+    else : 
+        TIEMPO = TPS[posicionMenorTPS]
+        SUMATORIA_TPS += TPS[posicionMenorTPS]
+        prioridad_tarea = ""
+        if vector_prioridades_por_puestos_por_puesto[posicionMenorTPS] == "BP" :
+            BP -= 1
+            prioridad_tarea = "BP"
+        elif vector_prioridades_por_puestos_por_puesto[posicionMenorTPS] == "MP" :
+            MP -= 1
+            prioridad_tarea = "MP"
+        elif vector_prioridades_por_puestos_por_puesto[posicionMenorTPS] == "AP" :
+            AP -= 1
+            prioridad_tarea = "AP"
+        if(BP + MP + AP) >= cantidad_de_testers_disponibles :
+            TPS[posicionMenorTPS] = TIEMPO + FDPresolucionTareas(prioridad_tarea)
+        else :
+            TPS[posicionMenorTPS] = HV
+            INICIO_TIEMPO_OSCIOSO[posicionMenorTPS] = TIEMPO
+    IA = 0
 
 print("En un lapso de %s días llegaron %s tareas, se rechazaron %s y se atendieron %s" % (TIEMPO_FINAL, contador_tareas, arrepentidos ,contador_tareas_atendidas))
 
